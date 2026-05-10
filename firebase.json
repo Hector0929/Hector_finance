@@ -1,0 +1,6 @@
+{
+  "firestore": {
+    "database": "stock-dashboard",
+    "rules": "firestore.rules"
+  }
+}

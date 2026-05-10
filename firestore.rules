@@ -1,0 +1,44 @@
+rules_version = '2';
+
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: watchlists
+// Document ID: {user_id} (e.g. "default")
+// Fields:
+//   - stocks: list of strings (required) - 台股股票代號列表, max 200 items
+//
+// Collection: notes
+// Document ID: {user_id}_{stock_id} (e.g. "default_2330")
+// Fields:
+//   - stock_id:   string (required, immutable) - 股票代號
+//   - content:    string (required)            - 筆記內容, max 10000 chars
+//   - updated_at: string (required)            - ISO 8601 時間戳記
+//
+// Collection: financials_cache
+// Document ID: {stock_id} (e.g. "2330")
+// Fields:
+//   - stock_id:     string  (required, immutable) - 股票代號
+//   - payload:      map     (required)            - 財報資料
+//   - cached_at_ts: number  (required)            - Unix timestamp
+//   - cached_at:    string  (required)            - ISO 8601 時間戳記
+//
+// NOTE: This application uses the Firebase Admin SDK exclusively.
+// The Admin SDK bypasses all security rules. These rules block any
+// direct client-side access, which is not needed by this app.
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Default: Deny all client-side access
+    // The app uses Admin SDK only — no client SDK access is needed.
+    // ===============================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

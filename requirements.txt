@@ -1,0 +1,16 @@
+streamlit>=1.32.0
+streamlit-authenticator>=0.4.0
+PyYAML>=6.0
+plotly>=5.0.0
+finlab
+pandas
+numpy
+python-dotenv
+pytest
+pytest-cov
+requests
+beautifulsoup4
+google-genai>=1.0.0
+firebase-admin>=6.0.0
+notion-client
+apscheduler>=3.10

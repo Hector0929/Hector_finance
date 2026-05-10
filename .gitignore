@@ -1,0 +1,16 @@
+.env
+firebase_credentials.json
+auth_config.yaml
+taiwan-stock-analysis/
+.DS_Store
+extracted/
+files.zip
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+htmlcov/
+.coverage
+*.egg-info/
+dist/
+build/
