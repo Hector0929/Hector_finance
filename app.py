@@ -1238,8 +1238,29 @@ def main() -> None:
     inject_global_css()
 
     # ── 登入驗證 ──────────────────────────────────────────────
-    with open("auth_config.yaml") as f:
-        auth_cfg = yaml.safe_load(f)
+    import os
+    if os.path.exists("auth_config.yaml"):
+        with open("auth_config.yaml") as f:
+            auth_cfg = yaml.safe_load(f)
+    elif "AUTH_USERS" in st.secrets:
+        # Streamlit Cloud：直接從 secrets 建構設定（不依賴寫檔成功）
+        users = {}
+        for uname, udata in st.secrets["AUTH_USERS"].items():
+            users[uname] = {
+                "name": str(udata.get("name", uname)),
+                "password": str(udata["password"]),
+            }
+        auth_cfg = {
+            "credentials": {"usernames": users},
+            "cookie": {
+                "expiry_days": 30,
+                "key": str(st.secrets.get("AUTH_COOKIE_KEY", "stock_dashboard_secret_key")),
+                "name": "stock_dashboard_auth",
+            },
+        }
+    else:
+        st.error("找不到登入設定檔（auth_config.yaml），請確認 Streamlit Secrets 已設定 AUTH_USERS。")
+        st.stop()
 
     authenticator = stauth.Authenticate(
         auth_cfg["credentials"],
