@@ -606,8 +606,8 @@ def render_ai_analysis() -> None:
                 dif_val = signal_val = osc_val = 0.0
                 foreign_consec = 0
 
-                if not ohlcv.empty and "close" in ohlcv.columns:
-                    close = ohlcv["close"].dropna()
+                if not ohlcv.empty and "Close" in ohlcv.columns:
+                    close = ohlcv["Close"].dropna()
                     if len(close) >= 5:
                         ma5_val = float(calc_ma(close, 5).iloc[-1] or 0)
                     if len(close) >= 20:
@@ -623,8 +623,8 @@ def render_ai_analysis() -> None:
                     signal_val = float(signal_s.iloc[-1] or 0)
                     osc_val = float(osc_s.iloc[-1] or 0)
 
-                    if "high" in ohlcv.columns and "low" in ohlcv.columns:
-                        k_s, d_s = calc_kd(ohlcv["high"], ohlcv["low"], close)
+                    if "High" in ohlcv.columns and "Low" in ohlcv.columns:
+                        k_s, d_s = calc_kd(ohlcv["High"], ohlcv["Low"], close)
                         k_val = float(k_s.iloc[-1] or 50)
                         d_val = float(d_s.iloc[-1] or 50)
 
@@ -940,7 +940,7 @@ def _get_indicators_for_date(stock_id: str, target_date: str) -> dict:
     if df.empty:
         return {}
 
-    close = df["close"].dropna()
+    close = df["Close"].dropna()
     if len(close) < 2:
         return {}
 
@@ -949,8 +949,8 @@ def _get_indicators_for_date(stock_id: str, target_date: str) -> dict:
 
     # KD
     k_val = d_val = 50.0
-    if len(df) >= 9 and "high" in df.columns and "low" in df.columns:
-        k_s, d_s = calc_kd(df["high"], df["low"], close)
+    if len(df) >= 9 and "High" in df.columns and "Low" in df.columns:
+        k_s, d_s = calc_kd(df["High"], df["Low"], close)
         k_val = round(float(k_s.iloc[-1]), 2)
         d_val = round(float(d_s.iloc[-1]), 2)
 
@@ -1124,7 +1124,7 @@ def render_notes_page(user_id: str = "default") -> None:
                     # 迷你布林通道圖（近 30 天）
                     chart_df = ind.get("chart_df")
                     if chart_df is not None and not chart_df.empty and len(chart_df) >= 5:
-                        close_s = chart_df["close"].dropna()
+                        close_s = chart_df["Close"].dropna()
                         bb_mid_s, bb_up_s, bb_low_s = calc_bollinger(close_s)
                         dates = [str(d.date()) for d in chart_df.index]
 
