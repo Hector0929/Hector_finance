@@ -1151,7 +1151,7 @@ def render_notes_page(user_id: str = "default") -> None:
                             height=200, margin=dict(l=0, r=0, t=8, b=0),
                             yaxis=dict(color="#8B949E"), xaxis=dict(color="#8B949E"),
                         )
-                        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+                        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False}, key=f"note_chart_{page_id}")
 
 
 # ---------------------------------------------------------------------------
