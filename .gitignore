@@ -1,6 +1,7 @@
 .env
 firebase_credentials.json
 auth_config.yaml
+.streamlit/secrets.toml
 taiwan-stock-analysis/
 .DS_Store
 extracted/

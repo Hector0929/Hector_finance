@@ -12,6 +12,7 @@ app.py — 台股個股分析儀表板 Streamlit 主程式
 設計規格參考：docs/design_spec.md
 """
 
+import json
 import logging
 import yaml
 
@@ -19,6 +20,40 @@ import pandas as pd
 import streamlit as st
 import streamlit_authenticator as stauth
 from dotenv import load_dotenv
+
+
+def _write_secrets_to_files() -> None:
+    """
+    Streamlit Community Cloud 環境：從 st.secrets 寫出設定檔案。
+    本機開發時 secrets 不存在，直接略過。
+    """
+    try:
+        # Firebase 服務帳戶
+        if "firebase_credentials" in st.secrets:
+            creds = dict(st.secrets["firebase_credentials"])
+            with open("firebase_credentials.json", "w") as f:
+                json.dump(creds, f)
+
+        # 登入設定
+        if "AUTH_USERS" in st.secrets:
+            users: dict = {}
+            for uname, udata in st.secrets["AUTH_USERS"].items():
+                users[uname] = {
+                    "name": str(udata.get("name", uname)),
+                    "password": str(udata["password"]),
+                }
+            auth_cfg = {
+                "credentials": {"usernames": users},
+                "cookie": {
+                    "expiry_days": 30,
+                    "key": str(st.secrets.get("AUTH_COOKIE_KEY", "stock_dashboard_secret_key")),
+                    "name": "stock_dashboard_auth",
+                },
+            }
+            with open("auth_config.yaml", "w") as f:
+                yaml.dump(auth_cfg, f, allow_unicode=True)
+    except Exception:
+        pass
 
 from src.data.finlab_client import (
     fetch_stock_info as _fetch_stock_info,
@@ -1199,6 +1234,7 @@ def render_watchlist(user_id: str = "default") -> None:
 
 def main() -> None:
     """Streamlit 主程式入口。"""
+    _write_secrets_to_files()
     inject_global_css()
 
     # ── 登入驗證 ──────────────────────────────────────────────
