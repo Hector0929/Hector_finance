@@ -68,7 +68,11 @@ from src.indicators.bollinger import build_main_chart, calc_bollinger, calc_ma
 from src.indicators.macd_kd import build_indicator_chart, calc_kd, calc_macd
 from src.indicators.institutional import build_institutional_chart, calc_institutional_net, calc_consecutive_buy
 from src.ai.gemini_client import get_ai_analysis
-from src.data.firebase_client import create_note, get_notes, get_all_notes, delete_note, format_note_display
+from src.data.firebase_client import (
+    create_note, get_notes, get_all_notes, delete_note, format_note_display,
+    save_recent_search, get_recent_searches,
+)
+from src.portfolio.calculator import calc_portfolio
 from src.watchlist.manager import (
     load_watchlist, add_stock, remove_stock, is_in_watchlist, get_watchlist_ids
 )
@@ -667,17 +671,20 @@ def render_header() -> None:
                     st.session_state["ai_analysis"] = None
                     st.session_state["financial_data"] = {}
                     st.session_state["notes_data"] = []
+                    # 記錄最近搜尋（不阻塞主流程）
+                    _current_user = st.session_state.get("username", "default")
+                    save_recent_search(stock_input, _current_user)
 
         # 週期選擇更新
         if period != st.session_state.get("current_period"):
             st.session_state["current_period"] = period
 
         # ---------------------------------------------------------------
-        # 第二列：7 欄指標卡片
+        # 第二列：9 欄指標卡片
         # ---------------------------------------------------------------
         (
-            col0, col1, col2, col3, col4, col5, col6
-        ) = st.columns(7)
+            col0, col1, col2, col3, col4, col5, col6, col7, col8
+        ) = st.columns(9)
 
         data: dict = st.session_state.get("stock_data", {})
         has_data = bool(data)
@@ -791,6 +798,26 @@ def render_header() -> None:
                 )
             else:
                 st.markdown(_placeholder_card_html("52週低"), unsafe_allow_html=True)
+
+        with col7:
+            if has_data and data.get("pe_ratio") is not None:
+                st.markdown(
+                    _metric_card_html("本益比 P/E", f"{data['pe_ratio']:.1f} x", "#0A1628"),
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.markdown(_placeholder_card_html("本益比 P/E"), unsafe_allow_html=True)
+
+        with col8:
+            if has_data and data.get("market_cap") is not None:
+                mc = data["market_cap"]
+                mc_str = f"{mc / 10000:.1f} 兆" if mc >= 10000 else f"{mc:.0f} 億"
+                st.markdown(
+                    _metric_card_html("市值", mc_str, "#0A1628"),
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.markdown(_placeholder_card_html("市值"), unsafe_allow_html=True)
 
         # 分隔線（M1 底部與 M2 之間）
         st.divider()
@@ -1492,6 +1519,128 @@ def render_notes_page(user_id: str = "default") -> None:
 
 
 # ---------------------------------------------------------------------------
+# 持倉損益 — render_portfolio()
+# ---------------------------------------------------------------------------
+
+
+def render_portfolio(user_id: str = "default") -> None:
+    """持倉損益頁面：從筆記計算 FIFO 持倉，顯示未實現/已實現損益。"""
+    st.markdown("### 💼 持倉損益")
+
+    # 載入所有筆記
+    if "portfolio_notes_cache" not in st.session_state:
+        with st.spinner("載入筆記資料中..."):
+            st.session_state["portfolio_notes_cache"] = get_all_notes(user_id)
+
+    col_reload, _ = st.columns([2, 8])
+    with col_reload:
+        if st.button("重新整理", key="reload_portfolio"):
+            st.session_state.pop("portfolio_notes_cache", None)
+            st.rerun()
+
+    all_notes: list = st.session_state.get("portfolio_notes_cache", [])
+    buy_sell = [n for n in all_notes if n.get("note_type") in ("買入", "賣出")]
+
+    if not buy_sell:
+        st.info("尚無買入／賣出筆記，請先在「我的筆記」頁面新增交易記錄。")
+        return
+
+    # 取得現價（從已載入的 OHLCV 快取，或直接用 fetch_stock_info）
+    stock_ids = list({n["stock_id"] for n in buy_sell})
+    current_prices: dict[str, float] = {}
+    for sid in stock_ids:
+        cached = st.session_state.get("stock_data", {})
+        if cached.get("stock_id") == sid:
+            current_prices[sid] = cached.get("close", 0.0)
+        else:
+            info = fetch_stock_info(sid)
+            current_prices[sid] = info.get("close", 0.0) if info else 0.0
+
+    portfolio = calc_portfolio(buy_sell, current_prices)
+
+    # ── 總覽卡片 ──────────────────────────────────────────────
+    pnl = portfolio["total_unrealized_pnl"]
+    pnl_pct = portfolio["total_unrealized_pnl_pct"]
+    pnl_color = "#D92B2B" if pnl >= 0 else "#1A7F4B"
+    realized = portfolio["realized_pnl"]
+    realized_color = "#D92B2B" if realized >= 0 else "#1A7F4B"
+
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        st.markdown(
+            _metric_card_html("總成本（元）", f"{portfolio['total_cost']:,.0f}"),
+            unsafe_allow_html=True,
+        )
+    with c2:
+        st.markdown(
+            _metric_card_html("當前市值（元）", f"{portfolio['total_value']:,.0f}"),
+            unsafe_allow_html=True,
+        )
+    with c3:
+        st.markdown(
+            _metric_card_html(
+                "未實現損益",
+                f"{'+' if pnl >= 0 else ''}{pnl:,.0f}（{pnl_pct:+.1f}%）",
+                pnl_color,
+                border_top_color=pnl_color,
+            ),
+            unsafe_allow_html=True,
+        )
+    with c4:
+        st.markdown(
+            _metric_card_html(
+                "已實現損益",
+                f"{'+' if realized >= 0 else ''}{realized:,.0f}",
+                realized_color,
+                border_top_color=realized_color,
+            ),
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("")
+
+    # ── 持倉明細 ──────────────────────────────────────────────
+    positions = portfolio["positions"]
+    if not positions:
+        st.caption("目前無持倉（買入已全數賣出）。")
+    else:
+        st.markdown("#### 持倉明細")
+        for pos in sorted(positions, key=lambda p: abs(p["unrealized_pnl"]), reverse=True):
+            upnl = pos["unrealized_pnl"]
+            upnl_pct = pos["unrealized_pnl_pct"]
+            pos_color = "#D92B2B" if upnl >= 0 else "#1A7F4B"
+
+            with st.expander(
+                f"**{pos['stock_id']}**　"
+                f"{pos['shares']} 張　"
+                f"均成本 {pos['avg_cost']:.2f}　"
+                f"現價 {pos['current_price']:.2f}　"
+                f"損益 {'+' if upnl >= 0 else ''}{upnl:,.0f}（{upnl_pct:+.1f}%）",
+                expanded=False,
+            ):
+                d1, d2, d3, d4 = st.columns(4)
+                with d1:
+                    st.metric("持倉張數", f"{pos['shares']} 張")
+                with d2:
+                    st.metric("平均成本", f"{pos['avg_cost']:.2f}")
+                with d3:
+                    st.metric("當前價格", f"{pos['current_price']:.2f}")
+                with d4:
+                    st.metric(
+                        "損益",
+                        f"{'+' if upnl >= 0 else ''}{upnl:,.0f}",
+                        delta=f"{upnl_pct:+.1f}%",
+                    )
+
+    # ── 已實現損益說明 ──────────────────────────────────────────
+    if realized != 0:
+        st.markdown("---")
+        st.caption(
+            f"已實現損益（歷史出場）：{'+' if realized >= 0 else ''}{realized:,.0f} 元"
+        )
+
+
+# ---------------------------------------------------------------------------
 # M9 — render_watchlist()
 # ---------------------------------------------------------------------------
 
@@ -1563,6 +1712,35 @@ def render_watchlist(user_id: str = "default") -> None:
                     _save([s for s in watchlist_ids if s != sid])
                     st.rerun()
 
+    # ── 最近搜尋 ──────────────────────────────────────────────
+    st.sidebar.divider()
+    st.sidebar.markdown("## 最近搜尋")
+    if "recent_searches" not in st.session_state or st.session_state.get("_rs_user") != user_id:
+        st.session_state["recent_searches"] = get_recent_searches(user_id)
+        st.session_state["_rs_user"] = user_id
+
+    recent: list[str] = st.session_state.get("recent_searches", [])
+    if not recent:
+        st.sidebar.caption("尚無搜尋紀錄。")
+    else:
+        for sid in recent:
+            if st.sidebar.button(sid, key=f"rs_{sid}", use_container_width=True):
+                with st.spinner("資料載入中..."):
+                    data = fetch_stock_info(sid)
+                if data:
+                    st.session_state["current_stock"] = sid
+                    st.session_state["stock_data"] = data
+                    ohlcv = fetch_ohlcv(sid)
+                    if not ohlcv.empty:
+                        st.session_state["ohlcv_data"] = ohlcv
+                    inst = fetch_institutional(sid)
+                    if not inst.empty:
+                        st.session_state["institutional_data"] = inst
+                    st.session_state["ai_analysis"] = None
+                    st.session_state["financial_data"] = {}
+                    st.session_state["notes_data"] = []
+                st.rerun()
+
 
 # ---------------------------------------------------------------------------
 # main()
@@ -1623,7 +1801,9 @@ def main() -> None:
     render_watchlist(current_user)
     render_header()
 
-    tab_tech, tab_fin, tab_notes = st.tabs(["📈 技術分析", "📊 財務分析", "📝 我的筆記"])
+    tab_tech, tab_fin, tab_notes, tab_portfolio = st.tabs(
+        ["📈 技術分析", "📊 財務分析", "📝 我的筆記", "💼 持倉損益"]
+    )
 
     with tab_tech:
         render_main_chart()
@@ -1637,6 +1817,9 @@ def main() -> None:
 
     with tab_notes:
         render_notes_page(current_user)
+
+    with tab_portfolio:
+        render_portfolio(current_user)
 
 
 if __name__ == "__main__":

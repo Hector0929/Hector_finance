@@ -114,25 +114,25 @@ class TestValidateStockId:
 
 
 class TestGetChangeColor:
-    """測試 get_change_color(value: float) -> str"""
+    """測試 get_change_color(value: float) -> str（v2 Light Theme 色彩）"""
 
     def test_positive_value(self):
-        assert get_change_color(1.0) == "#F85149"
+        assert get_change_color(1.0) == "#D92B2B"
 
     def test_negative_value(self):
-        assert get_change_color(-1.0) == "#3FB950"
+        assert get_change_color(-1.0) == "#1A7F4B"
 
     def test_zero(self):
-        assert get_change_color(0.0) == "#E6EDF3"
+        assert get_change_color(0.0) == "#0A1628"
 
     def test_large_positive(self):
-        assert get_change_color(100.0) == "#F85149"
+        assert get_change_color(100.0) == "#D92B2B"
 
     def test_large_negative(self):
-        assert get_change_color(-100.0) == "#3FB950"
+        assert get_change_color(-100.0) == "#1A7F4B"
 
     def test_small_positive(self):
-        assert get_change_color(0.001) == "#F85149"
+        assert get_change_color(0.001) == "#D92B2B"
 
     def test_small_negative(self):
-        assert get_change_color(-0.001) == "#3FB950"
+        assert get_change_color(-0.001) == "#1A7F4B"

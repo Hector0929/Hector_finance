@@ -5,8 +5,11 @@ firebase_client.py — Firebase Firestore 資料庫存取層
 所有操作在 Firebase 不可用時自動降級（fallback 為空資料）。
 """
 
+from __future__ import annotations
+
 import logging
 import os
+from typing import Optional
 
 from dotenv import load_dotenv
 
@@ -80,7 +83,7 @@ def create_note(
     price: float,
     shares: int,
     content: str,
-    date: str | None = None,
+    date: Optional[str] = None,
     user_id: str = "default",
 ) -> dict:
     """建立一筆筆記，存至 Firestore notes collection。"""
@@ -223,3 +226,47 @@ def save_financials_cache(stock_id: str, payload: dict) -> bool:
     except Exception as e:
         logger.error(f"save_financials_cache 失敗 stock_id={stock_id}：{e}")
         return False
+
+
+# ── 最近搜尋紀錄 ──────────────────────────────────────────
+
+_RECENT_SEARCHES_MAX = 10
+
+
+def save_recent_search(stock_id: str, user_id: str = "default") -> None:
+    """
+    儲存最近搜尋的股票代號。
+
+    同一 stock_id 重複搜尋時移到最前；超過 _RECENT_SEARCHES_MAX 筆時捨棄最舊的。
+    Firebase 不可用時靜默略過。
+    """
+    db = _get_db()
+    if db is None:
+        return
+    try:
+        doc_ref = db.collection("recent_searches").document(user_id)
+        doc = doc_ref.get()
+        current: list[str] = doc.to_dict().get("stocks", []) if doc.exists else []
+        # 移除舊的同 id，插入最前
+        updated = [stock_id] + [s for s in current if s != stock_id]
+        doc_ref.set({"stocks": updated[:_RECENT_SEARCHES_MAX]})
+    except Exception as e:
+        logger.error(f"save_recent_search 失敗：{e}")
+
+
+def get_recent_searches(user_id: str = "default") -> list[str]:
+    """
+    取得最近搜尋的股票代號列表（最新在前）。
+    Firebase 不可用時回傳空列表。
+    """
+    db = _get_db()
+    if db is None:
+        return []
+    try:
+        doc = db.collection("recent_searches").document(user_id).get()
+        if doc.exists:
+            return doc.to_dict().get("stocks", [])
+        return []
+    except Exception as e:
+        logger.error(f"get_recent_searches 失敗：{e}")
+        return []

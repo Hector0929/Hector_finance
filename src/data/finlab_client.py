@@ -227,6 +227,29 @@ def fetch_stock_info(stock_id: str) -> dict:
 
         name = fetch_stock_name(stock_id)
 
+        # 本益比（P/E ratio）
+        pe_ratio = None
+        try:
+            pe_df = finlab_data.get("fundamental_features:本益比")
+            if stock_id in pe_df.columns:
+                pe_s = pe_df[stock_id].dropna()
+                if len(pe_s) > 0:
+                    val = float(pe_s.iloc[-1])
+                    pe_ratio = round(val, 1) if val > 0 else None
+        except Exception:
+            pass
+
+        # 市值（億元）
+        market_cap = None
+        try:
+            mc_df = finlab_data.get("fundamental_features:市值")
+            if stock_id in mc_df.columns:
+                mc_s = mc_df[stock_id].dropna()
+                if len(mc_s) > 0:
+                    market_cap = round(float(mc_s.iloc[-1]) / 1e8, 0)
+        except Exception:
+            pass
+
         return {
             "stock_id": stock_id,
             "name": name,
@@ -236,6 +259,8 @@ def fetch_stock_info(stock_id: str) -> dict:
             "volume": volume,
             "high_52w": high_52w,
             "low_52w": low_52w,
+            "pe_ratio": pe_ratio,
+            "market_cap": market_cap,
         }
 
     except Exception as exc:

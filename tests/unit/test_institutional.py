@@ -140,7 +140,7 @@ class TestBuildInstitutionalChart:
         assert len(scatter_traces) == 1
 
     def test_bgcolor(self, sample_inst_df):
-        """plot_bgcolor 與 paper_bgcolor 必須為 #0D1117。"""
+        """plot_bgcolor 與 paper_bgcolor 必須為白色（v2 light theme）。"""
         fig = build_institutional_chart(sample_inst_df)
-        assert fig.layout.plot_bgcolor == "#0D1117"
-        assert fig.layout.paper_bgcolor == "#0D1117"
+        assert fig.layout.plot_bgcolor == "#FFFFFF"
+        assert fig.layout.paper_bgcolor == "#FFFFFF"
