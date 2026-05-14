@@ -17,11 +17,11 @@ import plotly.graph_objects as go
 # 色彩常數（來自設計系統）
 # ---------------------------------------------------------------------------
 
-_COLOR_FOREIGN = "#58A6FF"   # 外資
-_COLOR_TRUST = "#F0883E"     # 投信
-_COLOR_DEALER = "#A371F7"    # 自營商
-_COLOR_TOTAL = "#E6EDF3"     # 合計線
-_BG_PRIMARY = "#0D1117"
+_COLOR_FOREIGN = "#0057B8"   # 外資
+_COLOR_TRUST = "#B85C00"     # 投信
+_COLOR_DEALER = "#6B3DD1"    # 自營商
+_COLOR_TOTAL = "#0A1628"     # 合計線
+_BG_PRIMARY = "#FFFFFF"
 
 
 # ---------------------------------------------------------------------------
@@ -177,9 +177,29 @@ def build_institutional_chart(df_inst: pd.DataFrame) -> go.Figure:
         height=300,
         margin=dict(l=60, r=60, t=30, b=30),
         hovermode="x unified",
-        legend=dict(orientation="h", y=1.05),
-        xaxis=dict(type="category"),
-        yaxis=dict(side="right"),
+        hoverlabel=dict(
+            bgcolor="#FFFFFF",
+            bordercolor="#DDE1E9",
+            font=dict(color="#0A1628", family="JetBrains Mono"),
+        ),
+        legend=dict(
+            orientation="h",
+            y=1.05,
+            font=dict(color="#4A5568"),
+            bgcolor="rgba(255,255,255,0.9)",
+            bordercolor="#DDE1E9",
+            borderwidth=1,
+        ),
+        xaxis=dict(
+            type="category",
+            gridcolor="#DDE1E9",
+            tickfont=dict(color="#4A5568", family="JetBrains Mono"),
+        ),
+        yaxis=dict(
+            side="right",
+            gridcolor="#DDE1E9",
+            tickfont=dict(color="#4A5568", family="JetBrains Mono"),
+        ),
     )
 
     return fig

@@ -88,11 +88,11 @@ def get_change_color(value: float) -> str:
         色碼字串（含 # 前綴）。
     """
     if value > 0:
-        return "#F85149"
+        return "#D92B2B"
     elif value < 0:
-        return "#3FB950"
+        return "#1A7F4B"
     else:
-        return "#E6EDF3"
+        return "#0A1628"
 
 
 # ---------------------------------------------------------------------------

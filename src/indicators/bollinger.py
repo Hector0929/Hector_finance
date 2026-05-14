@@ -112,9 +112,8 @@ def build_main_chart(df: pd.DataFrame) -> go.Figure:
     ma60 = calc_ma(close, window=60)
 
     # 成交量顏色：收盤 >= 開盤 → 上漲紅色；收盤 < 開盤 → 下跌綠色
-    # 平盤（close == open）歸入次要色 #8B949E
     vol_colors = [
-        "#F85149" if c > o else "#3FB950" if c < o else "#8B949E"
+        "#D92B2B" if c > o else "#1A7F4B" if c < o else "#9AA5B4"
         for c, o in zip(close, open_)
     ]
 
@@ -142,10 +141,10 @@ def build_main_chart(df: pd.DataFrame) -> go.Figure:
             low=df["Low"],
             close=close,
             name="K線",
-            increasing_line_color="#F85149",
-            increasing_fillcolor="#F85149",
-            decreasing_line_color="#3FB950",
-            decreasing_fillcolor="#3FB950",
+            increasing_line_color="#D92B2B",
+            increasing_fillcolor="#D92B2B",
+            decreasing_line_color="#1A7F4B",
+            decreasing_fillcolor="#1A7F4B",
         ),
         row=1,
         col=1,
@@ -158,7 +157,7 @@ def build_main_chart(df: pd.DataFrame) -> go.Figure:
             y=lower,
             name="布林下軌",
             mode="lines",
-            line=dict(color="#3FB950", width=1, dash="dot"),
+            line=dict(color="#1A7F4B", width=1, dash="dot"),
             fill=None,
         ),
         row=1,
@@ -172,9 +171,9 @@ def build_main_chart(df: pd.DataFrame) -> go.Figure:
             y=upper,
             name="布林上軌",
             mode="lines",
-            line=dict(color="#F0883E", width=1, dash="dot"),
+            line=dict(color="#B85C00", width=1, dash="dot"),
             fill="tonexty",
-            fillcolor="rgba(88,166,255,0.05)",
+            fillcolor="rgba(0,87,184,0.06)",
         ),
         row=1,
         col=1,
@@ -187,7 +186,7 @@ def build_main_chart(df: pd.DataFrame) -> go.Figure:
             y=mid,
             name="MA20/中軌",
             mode="lines",
-            line=dict(color="#58A6FF", width=1.5),
+            line=dict(color="#0057B8", width=1.5),
         ),
         row=1,
         col=1,
@@ -200,7 +199,7 @@ def build_main_chart(df: pd.DataFrame) -> go.Figure:
             y=ma5,
             name="MA5",
             mode="lines",
-            line=dict(color="#FFA657", width=1.5),
+            line=dict(color="#D4720A", width=1.5),
         ),
         row=1,
         col=1,
@@ -213,7 +212,7 @@ def build_main_chart(df: pd.DataFrame) -> go.Figure:
             y=ma60,
             name="MA60",
             mode="lines",
-            line=dict(color="#A371F7", width=1.5),
+            line=dict(color="#6B3DD1", width=1.5),
         ),
         row=1,
         col=1,
@@ -243,15 +242,14 @@ def build_main_chart(df: pd.DataFrame) -> go.Figure:
     # ------------------------------------------------------------------
     fig.update_layout(
         height=540,
-        plot_bgcolor="#0D1117",
-        paper_bgcolor="#0D1117",
+        plot_bgcolor="#FFFFFF",
+        paper_bgcolor="#FFFFFF",
         hovermode="x unified",
         hoverlabel=dict(
-            bgcolor="#161B22",
-            bordercolor="#30363D",
-            font=dict(color="#E6EDF3", family="JetBrains Mono"),
+            bgcolor="#FFFFFF",
+            bordercolor="#DDE1E9",
+            font=dict(color="#0A1628", family="JetBrains Mono"),
         ),
-        # Legend：水平排列，位於圖表上方
         showlegend=True,
         legend=dict(
             orientation="h",
@@ -259,8 +257,10 @@ def build_main_chart(df: pd.DataFrame) -> go.Figure:
             y=1.02,
             xanchor="left",
             x=0,
-            font=dict(color="#8B949E", family="JetBrains Mono", size=11),
-            bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#4A5568", family="JetBrains Mono", size=11),
+            bgcolor="rgba(255,255,255,0.9)",
+            bordercolor="#DDE1E9",
+            borderwidth=1,
         ),
         margin=dict(l=60, r=60, t=40, b=20),
     )
@@ -273,8 +273,8 @@ def build_main_chart(df: pd.DataFrame) -> go.Figure:
     fig.update_xaxes(
         type="category",
         showgrid=True,
-        gridcolor="#30363D",
-        tickfont=dict(color="#8B949E", family="JetBrains Mono"),
+        gridcolor="#DDE1E9",
+        tickfont=dict(color="#4A5568", family="JetBrains Mono"),
         showticklabels=False,
         rangeslider_visible=False,
         row=1,
@@ -285,8 +285,8 @@ def build_main_chart(df: pd.DataFrame) -> go.Figure:
     fig.update_xaxes(
         type="category",
         showgrid=True,
-        gridcolor="#30363D",
-        tickfont=dict(color="#8B949E", family="JetBrains Mono"),
+        gridcolor="#DDE1E9",
+        tickfont=dict(color="#4A5568", family="JetBrains Mono"),
         showticklabels=True,
         nticks=8,
         row=2,
@@ -300,8 +300,8 @@ def build_main_chart(df: pd.DataFrame) -> go.Figure:
     # row=1 的 Y 軸（價格）
     fig.update_yaxes(
         showgrid=True,
-        gridcolor="#30363D",
-        tickfont=dict(color="#8B949E", family="JetBrains Mono"),
+        gridcolor="#DDE1E9",
+        tickfont=dict(color="#4A5568", family="JetBrains Mono"),
         side="right",
         row=1,
         col=1,
@@ -310,8 +310,8 @@ def build_main_chart(df: pd.DataFrame) -> go.Figure:
     # row=2 的 Y 軸（成交量）
     fig.update_yaxes(
         showgrid=True,
-        gridcolor="#30363D",
-        tickfont=dict(color="#8B949E", family="JetBrains Mono"),
+        gridcolor="#DDE1E9",
+        tickfont=dict(color="#4A5568", family="JetBrains Mono"),
         side="right",
         nticks=3,
         row=2,

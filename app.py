@@ -122,13 +122,13 @@ def fetch_institutional(stock_id: str, days: int = 60) -> pd.DataFrame:
 
 
 def inject_global_css() -> None:
-    """注入 Google Fonts 及全域 CSS 變數與樣式。"""
+    """注入 Google Fonts 及全域 CSS 變數與樣式（v2 Light Theme）。"""
 
     # Google Fonts
     st.markdown(
         """
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
 """,
         unsafe_allow_html=True,
     )
@@ -137,65 +137,367 @@ def inject_global_css() -> None:
     st.markdown(
         """
 <style>
+/* ── CSS 變數 ───────────────────────────────────────────── */
 :root {
-    --bg-primary:     #0D1117;
-    --bg-card:        #161B22;
-    --border-color:   #30363D;
-    --color-up:       #F85149;
-    --color-down:     #3FB950;
-    --color-accent:   #58A6FF;
-    --text-primary:   #E6EDF3;
-    --text-secondary: #8B949E;
+    --color-primary:     #0057B8;
+    --color-secondary:   #003B7A;
+    --color-accent:      #0057B8;
+    --color-up:          #D92B2B;
+    --color-down:        #1A7F4B;
+    --color-warning:     #B85C00;
+    --bg-primary:        #FFFFFF;
+    --bg-surface:        #F7F8FA;
+    --bg-hover:          #EEF2F8;
+    --bg-input:          #FFFFFF;
+    --surface-border:    #DDE1E9;
+    --border-focus:      #0057B8;
+    --text-primary:      #0A1628;
+    --text-secondary:    #4A5568;
+    --text-muted:        #9AA5B4;
+    --text-inverse:      #FFFFFF;
 }
 
-body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
+/* ── 全域重置 ────────────────────────────────────────────── */
+body, .stApp {
+    background-color: #FFFFFF;
+    color: #0A1628;
     font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
 }
 
 .stApp {
-    background-color: var(--bg-primary);
+    background-color: #FFFFFF !important;
+}
+
+section.main > div {
+    padding-top: 24px;
+    padding-bottom: 32px;
+}
+
+/* ── Typography ─────────────────────────────────────────── */
+h1, h2, h3, h4 {
+    font-family: 'Noto Sans TC', sans-serif;
+    color: #0A1628;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+h1 { font-size: 24px; line-height: 1.2; }
+h2 { font-size: 18px; line-height: 1.3; }
+h3 { font-size: 15px; line-height: 1.4; font-weight: 500; }
+
+[data-testid="stMarkdownContainer"] h3 {
+    font-size: 15px;
+    font-weight: 500;
+    color: #0A1628;
+    border-bottom: 1px solid #DDE1E9;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+    margin-top: 8px;
+}
+
+/* ── Metric 元件 ─────────────────────────────────────────── */
+.metric-label {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    color: #4A5568;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 6px;
 }
 
 .metric-value {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 600;
+    color: #0A1628;
+    line-height: 1.0;
 }
 
-.metric-label {
-    font-family: 'Noto Sans TC', sans-serif;
-    font-size: 12px;
-    color: #8B949E;
-}
-
+/* ── Card ────────────────────────────────────────────────── */
 .card {
-    background-color: #161B22;
-    border: 1px solid #30363D;
-    border-radius: 8px;
-    padding: 16px;
+    background-color: #F7F8FA;
+    border: 1px solid #DDE1E9;
+    border-radius: 4px;
+    padding: 16px 20px;
+    box-shadow: none;
 }
 
-/* Streamlit 元件覆寫 */
-[data-testid="stTextInput"] input {
-    background-color: #161B22;
-    color: #E6EDF3;
-    border: 1px solid #30363D;
-    font-family: 'JetBrains Mono', monospace;
+.metric-card {
+    background-color: #FFFFFF;
+    border: 1px solid #DDE1E9;
+    border-top: 3px solid #DDE1E9;
+    border-radius: 4px;
+    padding: 14px 16px;
+    min-height: 80px;
 }
 
-[data-testid="stSelectbox"] div {
-    background-color: #161B22;
-    color: #E6EDF3;
-    border-color: #30363D;
-}
+.metric-card.up   { border-top-color: #D92B2B; }
+.metric-card.down { border-top-color: #1A7F4B; }
 
-/* 查詢按鈕覆寫 */
+/* ── Button ──────────────────────────────────────────────── */
 [data-testid="baseButton-primary"] {
-    background-color: #58A6FF !important;
-    color: #0D1117 !important;
+    background-color: #0057B8 !important;
+    color: #FFFFFF !important;
     border: none !important;
+    border-radius: 4px !important;
+    font-family: 'Noto Sans TC', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+}
+
+[data-testid="baseButton-primary"]:hover {
+    background-color: #003B7A !important;
+}
+
+[data-testid="baseButton-secondary"] {
+    background-color: #FFFFFF !important;
+    color: #0057B8 !important;
+    border: 1px solid #0057B8 !important;
+    border-radius: 4px !important;
+    font-family: 'Noto Sans TC', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+}
+
+[data-testid="baseButton-secondary"]:hover {
+    background-color: #EEF2F8 !important;
+}
+
+/* ── Tabs ────────────────────────────────────────────────── */
+[data-testid="stTabs"] > div:first-child {
+    border-bottom: 2px solid #DDE1E9;
+    background-color: #FFFFFF;
+    gap: 0;
+}
+
+button[data-baseweb="tab"] {
+    font-family: 'Noto Sans TC', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #4A5568 !important;
+    background-color: transparent !important;
+    border-bottom: 2px solid transparent !important;
+    padding: 10px 20px !important;
+    margin-bottom: -2px;
+}
+
+button[data-baseweb="tab"][aria-selected="true"] {
+    color: #0057B8 !important;
+    border-bottom-color: #0057B8 !important;
+    background-color: transparent !important;
+}
+
+button[data-baseweb="tab"]:hover {
+    color: #0057B8 !important;
+    background-color: #EEF2F8 !important;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+[data-testid="stSidebar"] {
+    background-color: #F7F8FA !important;
+    border-right: 1px solid #DDE1E9 !important;
+}
+
+[data-testid="stSidebar"] h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0A1628;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #DDE1E9;
+    margin-bottom: 12px;
+}
+
+[data-testid="stSidebar"] [data-testid="baseButton-secondary"] {
+    background-color: #FFFFFF !important;
+    color: #0057B8 !important;
+    border: 1px solid #DDE1E9 !important;
+    border-radius: 4px !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 13px !important;
+    text-align: left !important;
+}
+
+[data-testid="stSidebar"] [data-testid="baseButton-secondary"]:hover {
+    border-color: #0057B8 !important;
+    background-color: #EEF2F8 !important;
+}
+
+/* ── Input ───────────────────────────────────────────────── */
+[data-testid="stTextInput"] input {
+    background-color: #FFFFFF;
+    color: #0A1628;
+    border: 1px solid #DDE1E9;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    padding: 8px 12px;
+}
+
+[data-testid="stTextInput"] input:focus {
+    border-color: #0057B8;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 87, 184, 0.12);
+}
+
+[data-testid="stTextInput"] input::placeholder {
+    color: #9AA5B4;
+}
+
+/* ── Selectbox ───────────────────────────────────────────── */
+[data-testid="stSelectbox"] > div > div {
+    background-color: #FFFFFF !important;
+    color: #0A1628 !important;
+    border: 1px solid #DDE1E9 !important;
+    border-radius: 4px !important;
+    font-family: 'Noto Sans TC', sans-serif !important;
+    font-size: 13px !important;
+}
+
+/* ── Expander ────────────────────────────────────────────── */
+[data-testid="stExpander"] {
+    border: 1px solid #DDE1E9 !important;
+    border-radius: 4px !important;
+    background-color: #FFFFFF !important;
+    margin-bottom: 8px;
+}
+
+[data-testid="stExpander"] summary {
+    font-family: 'Noto Sans TC', sans-serif !important;
+    font-size: 13px !important;
+    color: #0A1628 !important;
+    padding: 12px 16px !important;
+    font-weight: 500 !important;
+}
+
+[data-testid="stExpander"] summary:hover {
+    background-color: #EEF2F8 !important;
+}
+
+/* ── Divider ─────────────────────────────────────────────── */
+hr {
+    border: none;
+    border-top: 1px solid #DDE1E9;
+    margin: 16px 0;
+}
+
+/* ── st.metric ────────────────────────────────────────────── */
+[data-testid="metric-container"] {
+    background-color: #FFFFFF;
+    border: 1px solid #DDE1E9;
+    border-radius: 4px;
+    padding: 12px 16px;
+}
+
+[data-testid="stMetricLabel"] {
+    font-family: 'Noto Sans TC', sans-serif !important;
+    font-size: 11px !important;
+    color: #4A5568 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+[data-testid="stMetricValue"] {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    color: #0A1628 !important;
+}
+
+[data-testid="stMetricDelta"] {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 12px !important;
+}
+
+/* ── Caption / Alert ─────────────────────────────────────── */
+[data-testid="stCaptionContainer"] {
+    color: #9AA5B4 !important;
+    font-size: 12px !important;
+}
+
+[data-testid="stAlert"] {
+    border-radius: 4px !important;
+    font-family: 'Noto Sans TC', sans-serif !important;
+    font-size: 13px !important;
+}
+
+/* ── Spinner ─────────────────────────────────────────────── */
+[data-testid="stSpinner"] {
+    color: #0057B8 !important;
+}
+
+/* ── Number Input ────────────────────────────────────────── */
+[data-testid="stNumberInput"] input {
+    background-color: #FFFFFF !important;
+    color: #0A1628 !important;
+    border: 1px solid #DDE1E9 !important;
+    border-radius: 4px !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 13px !important;
+}
+
+/* ── Textarea ────────────────────────────────────────────── */
+textarea {
+    background-color: #FFFFFF !important;
+    color: #0A1628 !important;
+    border: 1px solid #DDE1E9 !important;
+    border-radius: 4px !important;
+    font-family: 'Noto Sans TC', sans-serif !important;
+    font-size: 13px !important;
+}
+
+textarea:focus {
+    border-color: #0057B8 !important;
+    box-shadow: 0 0 0 3px rgba(0, 87, 184, 0.12) !important;
+}
+
+/* ── Checkbox ────────────────────────────────────────────── */
+[data-testid="stCheckbox"] label {
+    font-family: 'Noto Sans TC', sans-serif !important;
+    font-size: 13px !important;
+    color: #0A1628 !important;
+}
+
+/* ── Table ───────────────────────────────────────────────── */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #4A5568;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 8px 12px;
+    border-bottom: 2px solid #DDE1E9;
+    background-color: #F7F8FA;
+    text-align: right;
+}
+
+td {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #0A1628;
+    padding: 8px 12px;
+    border-bottom: 1px solid #DDE1E9;
+    text-align: right;
+}
+
+td:first-child, th:first-child {
+    text-align: left;
+    font-family: 'Noto Sans TC', sans-serif;
+    color: #4A5568;
+}
+
+tr:hover td {
+    background-color: #EEF2F8;
 }
 </style>
 """,
@@ -231,40 +533,61 @@ def init_session_state() -> None:
 # ---------------------------------------------------------------------------
 
 
-def _metric_card_html(label: str, value: str, color: str = "#E6EDF3") -> str:
-    """
-    產生單一指標卡片的 HTML 字串。
-
-    Args:
-        label: 指標標籤文字。
-        value: 指標數值字串。
-        color: 數值色碼（預設主文字色）。
-
-    Returns:
-        HTML 字串。
-    """
+def _metric_card_html(label: str, value: str, color: str = "#0A1628",
+                      border_top_color: str = "#DDE1E9") -> str:
     return f"""
-<div class="card" style="height:100%; min-height:80px;">
-  <div class="metric-label">{label}</div>
-  <div class="metric-value" style="color:{color};">{value}</div>
+<div style="
+    background-color:#FFFFFF;
+    border:1px solid #DDE1E9;
+    border-top:3px solid {border_top_color};
+    border-radius:4px;
+    padding:14px 16px;
+    min-height:80px;
+">
+  <div style="
+      font-family:'Noto Sans TC',sans-serif;
+      font-size:11px;
+      color:#4A5568;
+      text-transform:uppercase;
+      letter-spacing:0.03em;
+      margin-bottom:6px;
+  ">{label}</div>
+  <div style="
+      font-family:'JetBrains Mono',monospace;
+      font-size:22px;
+      font-weight:600;
+      color:{color};
+      line-height:1.0;
+  ">{value}</div>
 </div>
 """
 
 
 def _placeholder_card_html(label: str) -> str:
-    """
-    產生灰色佔位符卡片 HTML（頁面初始狀態）。
-
-    Args:
-        label: 指標標籤文字。
-
-    Returns:
-        HTML 字串。
-    """
     return f"""
-<div class="card" style="height:100%; min-height:80px;">
-  <div class="metric-label">{label}</div>
-  <div class="metric-value" style="color:#8B949E;">--</div>
+<div style="
+    background-color:#FFFFFF;
+    border:1px solid #DDE1E9;
+    border-top:3px solid #DDE1E9;
+    border-radius:4px;
+    padding:14px 16px;
+    min-height:80px;
+">
+  <div style="
+      font-family:'Noto Sans TC',sans-serif;
+      font-size:11px;
+      color:#9AA5B4;
+      text-transform:uppercase;
+      letter-spacing:0.03em;
+      margin-bottom:6px;
+  ">{label}</div>
+  <div style="
+      font-family:'JetBrains Mono',monospace;
+      font-size:22px;
+      font-weight:600;
+      color:#9AA5B4;
+      line-height:1.0;
+  ">--</div>
 </div>
 """
 
@@ -363,12 +686,19 @@ def render_header() -> None:
             if has_data:
                 st.markdown(
                     f"""
-<div class="card" style="height:100%; min-height:80px;">
-  <div class="metric-label">股票代號</div>
-  <div class="metric-value" style="color:#E6EDF3; font-weight:700;">
+<div style="
+    background-color:#FFFFFF;
+    border:1px solid #DDE1E9;
+    border-top:3px solid #0057B8;
+    border-radius:4px;
+    padding:14px 16px;
+    min-height:80px;
+">
+  <div style="font-family:'Noto Sans TC',sans-serif;font-size:11px;color:#4A5568;text-transform:uppercase;letter-spacing:0.03em;margin-bottom:6px;">股票代號</div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:#0A1628;line-height:1.0;">
     {data["stock_id"]}
   </div>
-  <div class="metric-label" style="margin-top:2px;">{data["name"]}</div>
+  <div style="font-family:'Noto Sans TC',sans-serif;font-size:11px;color:#4A5568;margin-top:4px;">{data["name"]}</div>
 </div>
 """,
                     unsafe_allow_html=True,
@@ -384,7 +714,7 @@ def render_header() -> None:
                     _metric_card_html(
                         "最新收盤價",
                         f"{data['close']:.2f} 元",
-                        "#E6EDF3",
+                        "#0A1628",
                     ),
                     unsafe_allow_html=True,
                 )
@@ -393,11 +723,13 @@ def render_header() -> None:
 
         with col2:
             if has_data:
+                chg_color = get_change_color(data["change"])
                 st.markdown(
                     _metric_card_html(
                         "漲跌金額",
                         f"{format_change(data['change'])} 元",
-                        get_change_color(data["change"]),
+                        chg_color,
+                        border_top_color=chg_color,
                     ),
                     unsafe_allow_html=True,
                 )
@@ -406,11 +738,13 @@ def render_header() -> None:
 
         with col3:
             if has_data:
+                pct_color = get_change_color(data["change_pct"])
                 st.markdown(
                     _metric_card_html(
                         "漲跌幅",
                         format_change(data["change_pct"], is_pct=True),
-                        get_change_color(data["change_pct"]),
+                        pct_color,
+                        border_top_color=pct_color,
                     ),
                     unsafe_allow_html=True,
                 )
@@ -423,7 +757,7 @@ def render_header() -> None:
                     _metric_card_html(
                         "成交量",
                         format_volume(data["volume"]),
-                        "#E6EDF3",
+                        "#0A1628",
                     ),
                     unsafe_allow_html=True,
                 )
@@ -436,7 +770,8 @@ def render_header() -> None:
                     _metric_card_html(
                         "52週高",
                         f"{data['high_52w']:.2f} 元",
-                        "#F85149",
+                        "#D92B2B",
+                        border_top_color="#D92B2B",
                     ),
                     unsafe_allow_html=True,
                 )
@@ -449,7 +784,8 @@ def render_header() -> None:
                     _metric_card_html(
                         "52週低",
                         f"{data['low_52w']:.2f} 元",
-                        "#3FB950",
+                        "#1A7F4B",
+                        border_top_color="#1A7F4B",
                     ),
                     unsafe_allow_html=True,
                 )
@@ -476,10 +812,10 @@ def render_main_chart() -> None:
     df: pd.DataFrame = st.session_state.get("ohlcv_data", pd.DataFrame())
     if df.empty:
         st.markdown(
-            """<div style="height:540px;background:#161B22;
-                   border:1px solid #30363D;border-radius:8px;
+            """<div style="height:540px;background:#F7F8FA;
+                   border:1px solid #DDE1E9;border-radius:4px;
                    display:flex;align-items:center;justify-content:center;
-                   color:#8B949E;font-family:'Noto Sans TC',sans-serif;">
+                   color:#9AA5B4;font-family:'Noto Sans TC',sans-serif;font-size:13px;">
                    請先搜尋股票代號</div>""",
             unsafe_allow_html=True,
         )
@@ -517,10 +853,10 @@ def render_indicator_chart() -> None:
     df: pd.DataFrame = st.session_state.get("ohlcv_data", pd.DataFrame())
     if df.empty:
         st.markdown(
-            """<div style="height:280px;background:#161B22;
-                   border:1px solid #30363D;border-radius:8px;
+            """<div style="height:280px;background:#F7F8FA;
+                   border:1px solid #DDE1E9;border-radius:4px;
                    display:flex;align-items:center;justify-content:center;
-                   color:#8B949E;font-family:'Noto Sans TC',sans-serif;">
+                   color:#9AA5B4;font-family:'Noto Sans TC',sans-serif;font-size:13px;">
                    請先搜尋股票代號</div>""",
             unsafe_allow_html=True,
         )
@@ -555,9 +891,9 @@ def render_institutional_chart() -> None:
 
     if st.session_state.get("institutional_data") is None:
         st.markdown(
-            """<div style="height:300px;background:#161B22;border:1px solid #30363D;
-                   border-radius:8px;display:flex;align-items:center;
-                   justify-content:center;color:#8B949E;">
+            """<div style="height:300px;background:#F7F8FA;border:1px solid #DDE1E9;
+                   border-radius:4px;display:flex;align-items:center;
+                   justify-content:center;color:#9AA5B4;font-family:'Noto Sans TC',sans-serif;font-size:13px;">
                    請先搜尋股票代號</div>""",
             unsafe_allow_html=True,
         )
@@ -584,9 +920,9 @@ def render_ai_analysis() -> None:
     data: dict = st.session_state.get("stock_data", {})
     if not data or not isinstance(data, dict) or "stock_id" not in data:
         st.markdown(
-            """<div style="height:160px;background:#161B22;border:1px solid #30363D;
-                   border-radius:8px;display:flex;align-items:center;
-                   justify-content:center;color:#8B949E;">
+            """<div style="height:160px;background:#F7F8FA;border:1px solid #DDE1E9;
+                   border-radius:4px;display:flex;align-items:center;
+                   justify-content:center;color:#9AA5B4;font-family:'Noto Sans TC',sans-serif;font-size:13px;">
                    請先搜尋股票代號</div>""",
             unsafe_allow_html=True,
         )
@@ -652,20 +988,20 @@ def render_ai_analysis() -> None:
         if analysis.get("error"):
             st.error(f"AI 分析失敗：{analysis['error']}")
         else:
-            trend_color = {"多頭": "#F85149", "空頭": "#3FB950"}.get(
-                analysis.get("trend", ""), "#8B949E"
+            trend_color = {"多頭": "#D92B2B", "空頭": "#1A7F4B"}.get(
+                analysis.get("trend", ""), "#4A5568"
             )
-            risk_color = {"低": "#3FB950", "中": "#F0883E", "高": "#F85149"}.get(
-                analysis.get("risk_level", ""), "#8B949E"
+            risk_color = {"低": "#1A7F4B", "中": "#B85C00", "高": "#D92B2B"}.get(
+                analysis.get("risk_level", ""), "#4A5568"
             )
             st.markdown(
                 f"""<div class="card" style="margin-top:12px;">
-  <span style="font-family:'Noto Sans TC';color:#8B949E;font-size:12px;">趨勢方向</span>
+  <span style="font-family:'Noto Sans TC';color:#4A5568;font-size:12px;">趨勢方向</span>
   <span style="font-family:'JetBrains Mono';color:{trend_color};font-size:18px;font-weight:600;margin-left:8px;">{analysis.get("trend","N/A")}</span>
   &nbsp;&nbsp;
-  <span style="font-family:'Noto Sans TC';color:#8B949E;font-size:12px;">風險等級</span>
+  <span style="font-family:'Noto Sans TC';color:#4A5568;font-size:12px;">風險等級</span>
   <span style="font-family:'JetBrains Mono';color:{risk_color};font-size:18px;font-weight:600;margin-left:8px;">{analysis.get("risk_level","N/A")}</span>
-  <div style="margin-top:8px;color:#E6EDF3;font-size:14px;">{analysis.get("suggestion","")}</div>
+  <div style="margin-top:8px;color:#0A1628;font-size:14px;">{analysis.get("suggestion","")}</div>
 </div>""",
                 unsafe_allow_html=True,
             )
@@ -687,9 +1023,9 @@ def render_notes(user_id: str = "default") -> None:
     stock_id = st.session_state.get("current_stock", "")
     if not stock_id:
         st.markdown(
-            """<div style="height:120px;background:#161B22;border:1px solid #30363D;
-                   border-radius:8px;display:flex;align-items:center;
-                   justify-content:center;color:#8B949E;">
+            """<div style="height:120px;background:#F7F8FA;border:1px solid #DDE1E9;
+                   border-radius:4px;display:flex;align-items:center;
+                   justify-content:center;color:#9AA5B4;font-family:'Noto Sans TC',sans-serif;font-size:13px;">
                    請先搜尋股票代號</div>""",
             unsafe_allow_html=True,
         )
@@ -733,7 +1069,7 @@ def render_notes(user_id: str = "default") -> None:
             col_text, col_del = st.columns([9, 1])
             with col_text:
                 st.markdown(
-                    f'<div style="padding:8px;color:#E6EDF3;font-size:13px;">'
+                    f'<div style="padding:8px;color:#0A1628;font-size:13px;">'
                     f'{format_note_display(note)}</div>',
                     unsafe_allow_html=True,
                 )
@@ -756,9 +1092,9 @@ def _metric_card(label: str, values: dict, years: list, fmt: str = "{:.1f}") -> 
     for yr in years:
         val = values.get(yr)
         display = fmt.format(val) if val is not None else "N/A"
-        cells += f'<td style="padding:4px 12px;text-align:right;color:#E6EDF3;">{display}</td>'
+        cells += f'<td style="padding:4px 12px;text-align:right;color:#0A1628;">{display}</td>'
     return (
-        f'<tr><td style="padding:4px 8px;color:#8B949E;white-space:nowrap;">{label}</td>'
+        f'<tr><td style="padding:4px 8px;color:#4A5568;white-space:nowrap;">{label}</td>'
         f"{cells}</tr>"
     )
 
@@ -771,9 +1107,9 @@ def render_financial_analysis() -> None:
     stock_id = st.session_state.get("current_stock", "")
     if not stock_id:
         st.markdown(
-            """<div style="height:200px;background:#161B22;border:1px solid #30363D;
-                   border-radius:8px;display:flex;align-items:center;
-                   justify-content:center;color:#8B949E;">
+            """<div style="height:200px;background:#F7F8FA;border:1px solid #DDE1E9;
+                   border-radius:4px;display:flex;align-items:center;
+                   justify-content:center;color:#9AA5B4;font-family:'Noto Sans TC',sans-serif;font-size:13px;">
                    請先搜尋股票代號</div>""",
             unsafe_allow_html=True,
         )
@@ -809,9 +1145,9 @@ def render_financial_analysis() -> None:
     badge = "✅ 合理性通過" if sanity_ok else "⚠️ 資料有警示"
     mops_url = meta.get("mops_url", "#")
     st.markdown(
-        f'<div style="font-size:12px;color:#8B949E;margin-bottom:8px;">'
+        f'<div style="font-size:12px;color:#4A5568;margin-bottom:8px;">'
         f'資料來源：Goodinfo.tw｜抓取時間：{src_time}｜{badge}　'
-        f'<a href="{mops_url}" target="_blank" style="color:#58A6FF;">MOPS 官方申報</a></div>',
+        f'<a href="{mops_url}" target="_blank" style="color:#0057B8;">MOPS 官方申報</a></div>',
         unsafe_allow_html=True,
     )
 
@@ -823,7 +1159,7 @@ def render_financial_analysis() -> None:
     # ── KPI 卡片（關鍵指標三年表） ────────────────────────────
     st.markdown("#### 關鍵財務指標")
     yr_header = "".join(
-        f'<th style="padding:4px 12px;text-align:right;color:#58A6FF;">{y}</th>'
+        f'<th style="padding:4px 12px;text-align:right;color:#0057B8;">{y}</th>'
         for y in years
     )
     rows = (
@@ -839,7 +1175,7 @@ def render_financial_analysis() -> None:
     )
     st.markdown(
         f'<div class="card"><table style="width:100%;border-collapse:collapse;">'
-        f'<thead><tr><th style="padding:4px 8px;text-align:left;color:#8B949E;">指標</th>'
+        f'<thead><tr><th style="padding:4px 8px;text-align:left;color:#4A5568;">指標</th>'
         f'{yr_header}</tr></thead><tbody>{rows}</tbody></table></div>',
         unsafe_allow_html=True,
     )
@@ -853,15 +1189,15 @@ def render_financial_analysis() -> None:
         rev_vals = [metrics.get(y, {}).get("revenue") for y in years]
         gm_vals  = [metrics.get(y, {}).get("gross_margin") for y in years]
         fig1 = go.Figure()
-        fig1.add_bar(x=years, y=rev_vals, name="營收（億）", marker_color="#58A6FF", yaxis="y")
+        fig1.add_bar(x=years, y=rev_vals, name="營收（億）", marker_color="#0057B8", yaxis="y")
         fig1.add_scatter(x=years, y=gm_vals, name="毛利率（%）", mode="lines+markers",
-                         line=dict(color="#F0883E", width=2), yaxis="y2")
+                         line=dict(color="#B85C00", width=2), yaxis="y2")
         fig1.update_layout(
-            title="營收 & 毛利率", template="plotly_dark", paper_bgcolor="#0D1117",
-            plot_bgcolor="#0D1117", height=260, margin=dict(l=0, r=0, t=32, b=0),
-            legend=dict(orientation="h", y=-0.2),
-            yaxis=dict(title="億元", color="#8B949E"),
-            yaxis2=dict(title="%", overlaying="y", side="right", color="#F0883E"),
+            title="營收 & 毛利率", paper_bgcolor="#FFFFFF",
+            plot_bgcolor="#FFFFFF", height=260, margin=dict(l=0, r=0, t=32, b=0),
+            legend=dict(orientation="h", y=-0.2, font=dict(color="#4A5568")),
+            yaxis=dict(title="億元", color="#4A5568", gridcolor="#DDE1E9"),
+            yaxis2=dict(title="%", overlaying="y", side="right", color="#B85C00"),
         )
         st.plotly_chart(fig1, use_container_width=True, config={"displayModeBar": False})
 
@@ -870,15 +1206,15 @@ def render_financial_analysis() -> None:
         eps_vals = [metrics.get(y, {}).get("eps") for y in years]
         roe_vals = [metrics.get(y, {}).get("roe") for y in years]
         fig2 = go.Figure()
-        fig2.add_bar(x=years, y=eps_vals, name="EPS（元）", marker_color="#3FB950", yaxis="y")
+        fig2.add_bar(x=years, y=eps_vals, name="EPS（元）", marker_color="#1A7F4B", yaxis="y")
         fig2.add_scatter(x=years, y=roe_vals, name="ROE（%）", mode="lines+markers",
-                         line=dict(color="#F85149", width=2), yaxis="y2")
+                         line=dict(color="#D92B2B", width=2), yaxis="y2")
         fig2.update_layout(
-            title="EPS & ROE", template="plotly_dark", paper_bgcolor="#0D1117",
-            plot_bgcolor="#0D1117", height=260, margin=dict(l=0, r=0, t=32, b=0),
-            legend=dict(orientation="h", y=-0.2),
-            yaxis=dict(title="元", color="#8B949E"),
-            yaxis2=dict(title="%", overlaying="y", side="right", color="#F85149"),
+            title="EPS & ROE", paper_bgcolor="#FFFFFF",
+            plot_bgcolor="#FFFFFF", height=260, margin=dict(l=0, r=0, t=32, b=0),
+            legend=dict(orientation="h", y=-0.2, font=dict(color="#4A5568")),
+            yaxis=dict(title="元", color="#4A5568", gridcolor="#DDE1E9"),
+            yaxis2=dict(title="%", overlaying="y", side="right", color="#D92B2B"),
         )
         st.plotly_chart(fig2, use_container_width=True, config={"displayModeBar": False})
 
@@ -888,18 +1224,18 @@ def render_financial_analysis() -> None:
     with col_left2:
         fig3 = go.Figure()
         for label, key, color in [
-            ("毛利率", "gross_margin", "#58A6FF"),
-            ("營業利益率", "op_margin", "#F0883E"),
-            ("淨利率", "net_margin", "#3FB950"),
+            ("毛利率", "gross_margin", "#0057B8"),
+            ("營業利益率", "op_margin", "#B85C00"),
+            ("淨利率", "net_margin", "#1A7F4B"),
         ]:
             vals = [metrics.get(y, {}).get(key) for y in years]
             fig3.add_scatter(x=years, y=vals, name=label, mode="lines+markers",
                              line=dict(color=color, width=2))
         fig3.update_layout(
-            title="三層利潤率（%）", template="plotly_dark", paper_bgcolor="#0D1117",
-            plot_bgcolor="#0D1117", height=260, margin=dict(l=0, r=0, t=32, b=0),
-            legend=dict(orientation="h", y=-0.2),
-            yaxis=dict(title="%", color="#8B949E"),
+            title="三層利潤率（%）", paper_bgcolor="#FFFFFF",
+            plot_bgcolor="#FFFFFF", height=260, margin=dict(l=0, r=0, t=32, b=0),
+            legend=dict(orientation="h", y=-0.2, font=dict(color="#4A5568")),
+            yaxis=dict(title="%", color="#4A5568", gridcolor="#DDE1E9"),
         )
         st.plotly_chart(fig3, use_container_width=True, config={"displayModeBar": False})
 
@@ -908,15 +1244,15 @@ def render_financial_analysis() -> None:
         cr_vals = [metrics.get(y, {}).get("current_ratio") for y in years]
         dr_vals = [metrics.get(y, {}).get("debt_ratio") for y in years]
         fig4 = go.Figure()
-        fig4.add_bar(x=years, y=cr_vals, name="流動比率（%）", marker_color="#3FB950", yaxis="y")
+        fig4.add_bar(x=years, y=cr_vals, name="流動比率（%）", marker_color="#1A7F4B", yaxis="y")
         fig4.add_scatter(x=years, y=dr_vals, name="負債比率（%）", mode="lines+markers",
-                         line=dict(color="#F85149", width=2), yaxis="y2")
+                         line=dict(color="#D92B2B", width=2), yaxis="y2")
         fig4.update_layout(
-            title="財務健全度", template="plotly_dark", paper_bgcolor="#0D1117",
-            plot_bgcolor="#0D1117", height=260, margin=dict(l=0, r=0, t=32, b=0),
-            legend=dict(orientation="h", y=-0.2),
-            yaxis=dict(title="流動比率%", color="#8B949E"),
-            yaxis2=dict(title="負債比率%", overlaying="y", side="right", color="#F85149"),
+            title="財務健全度", paper_bgcolor="#FFFFFF",
+            plot_bgcolor="#FFFFFF", height=260, margin=dict(l=0, r=0, t=32, b=0),
+            legend=dict(orientation="h", y=-0.2, font=dict(color="#4A5568")),
+            yaxis=dict(title="流動比率%", color="#4A5568", gridcolor="#DDE1E9"),
+            yaxis2=dict(title="負債比率%", overlaying="y", side="right", color="#D92B2B"),
         )
         st.plotly_chart(fig4, use_container_width=True, config={"displayModeBar": False})
 
@@ -1058,7 +1394,7 @@ def render_notes_page(user_id: str = "default") -> None:
         shares    = note.get("shares", 0)
         page_id   = note.get("page_id", "")
 
-        type_color = {"買入": "#3FB950", "賣出": "#F85149", "觀察": "#58A6FF", "其他": "#8B949E"}.get(ntype, "#8B949E")
+        type_color = {"買入": "#1A7F4B", "賣出": "#D92B2B", "觀察": "#0057B8", "其他": "#9AA5B4"}.get(ntype, "#9AA5B4")
 
         with st.expander(
             f"**{note_date}**　{sid}　"
@@ -1076,7 +1412,7 @@ def render_notes_page(user_id: str = "default") -> None:
             with col_info:
                 # 筆記內容
                 st.markdown(
-                    f'<div style="padding:8px 0;color:#E6EDF3;">{content}</div>',
+                    f'<div style="padding:8px 0;color:#0A1628;">{content}</div>',
                     unsafe_allow_html=True,
                 )
                 if price > 0 or shares > 0:
@@ -1097,7 +1433,7 @@ def render_notes_page(user_id: str = "default") -> None:
                 else:
                     # 指標數字列
                     c1, c2, c3, c4 = st.columns(4)
-                    close_color = "#F85149" if ind.get("change_pct", 0) >= 0 else "#3FB950"
+                    close_color = "#D92B2B" if ind.get("change_pct", 0) >= 0 else "#1A7F4B"
                     c1.metric("收盤價", f"{ind['close']}", f"{ind['change_pct']:+.2f}%")
                     c2.metric("K 值", f"{ind['k']:.1f}")
                     c3.metric("D 值", f"{ind['d']:.1f}")
@@ -1106,7 +1442,7 @@ def render_notes_page(user_id: str = "default") -> None:
                     # KD 狀態說明
                     k, d = ind["k"], ind["d"]
                     kd_desc = "超買區（K > 80）" if k > 80 else "超賣區（K < 20）" if k < 20 else "中性區間"
-                    kd_color = "#F85149" if k > 80 else "#3FB950" if k < 20 else "#8B949E"
+                    kd_color = "#D92B2B" if k > 80 else "#1A7F4B" if k < 20 else "#4A5568"
                     st.markdown(
                         f'<span style="font-size:12px;color:{kd_color};">KD 狀態：{kd_desc}</span>',
                         unsafe_allow_html=True,
@@ -1115,7 +1451,7 @@ def render_notes_page(user_id: str = "default") -> None:
                     # 布林通道數值
                     if ind.get("bb_upper"):
                         st.markdown(
-                            f'<span style="font-size:12px;color:#8B949E;">'
+                            f'<span style="font-size:12px;color:#4A5568;">'
                             f'BB 上軌：{ind["bb_upper"]}　中軌：{ind["bb_mid"]}　下軌：{ind["bb_lower"]}'
                             f'</span>',
                             unsafe_allow_html=True,
@@ -1130,14 +1466,14 @@ def render_notes_page(user_id: str = "default") -> None:
 
                         fig = go.Figure()
                         fig.add_scatter(x=dates, y=bb_up_s.values, name="上軌",
-                                        line=dict(color="#F0883E", width=1, dash="dot"), showlegend=False)
+                                        line=dict(color="#B85C00", width=1, dash="dot"), showlegend=False)
                         fig.add_scatter(x=dates, y=bb_mid_s.values, name="中軌",
-                                        line=dict(color="#8B949E", width=1, dash="dash"), showlegend=False)
+                                        line=dict(color="#0057B8", width=1, dash="dash"), showlegend=False)
                         fig.add_scatter(x=dates, y=bb_low_s.values, name="下軌",
-                                        line=dict(color="#58A6FF", width=1, dash="dot"), showlegend=False,
-                                        fill="tonexty", fillcolor="rgba(88,166,255,0.05)")
+                                        line=dict(color="#1A7F4B", width=1, dash="dot"), showlegend=False,
+                                        fill="tonexty", fillcolor="rgba(0,87,184,0.06)")
                         fig.add_scatter(x=dates, y=close_s.values, name="收盤",
-                                        line=dict(color="#E6EDF3", width=2))
+                                        line=dict(color="#0A1628", width=2))
                         # 標記筆記當天
                         if note_date in dates:
                             note_idx = dates.index(note_date)
@@ -1147,9 +1483,10 @@ def render_notes_page(user_id: str = "default") -> None:
                                 name=ntype, showlegend=False,
                             )
                         fig.update_layout(
-                            template="plotly_dark", paper_bgcolor="#0D1117", plot_bgcolor="#0D1117",
+                            paper_bgcolor="#FFFFFF", plot_bgcolor="#FFFFFF",
                             height=200, margin=dict(l=0, r=0, t=8, b=0),
-                            yaxis=dict(color="#8B949E"), xaxis=dict(color="#8B949E"),
+                            yaxis=dict(color="#4A5568", gridcolor="#DDE1E9"),
+                            xaxis=dict(color="#4A5568", gridcolor="#DDE1E9"),
                         )
                         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False}, key=f"note_chart_{page_id}")
 
